@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "BrandItem": {
+      "title": "BrandItem",
+      "description": "Represents a curated brand product (brin) published by the administrator in the Tropicanna showroom.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Name of the product or signature creation.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "brandName": {
+          "type": "string",
+          "description": "Name of the brand or maison.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category in the showroom.",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "shortDescription": {
+          "type": "string",
+          "description": "Concise teaser description displayed on the home page card.",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "detailedDescription": {
+          "type": "string",
+          "description": "Comprehensive editorial description and specifications shown on the detail view.",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "priceDts": {
+          "type": "number",
+          "description": "Price in Tunisian Dinars (DTS)."
+        },
+        "mainPhoto": {
+          "type": "string",
+          "description": "Primary cover photo selected by the administrator to display on the home page.",
+          "minLength": 1,
+          "maxLength": 700000
+        },
+        "galleryPhotos": {
+          "type": "array",
+          "description": "Additional detail photos uploaded by the administrator (up to 8 images)."
+        },
+        "referenceCode": {
+          "type": "string",
+          "description": "Catalog reference identifier.",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "availability": {
+          "type": "string",
+          "description": "Current stock or edition status.",
+          "enum": ["En Stock", "Édition Limitée", "Sur Commande"]
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the administrator who published the item.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "title",
+        "brandName",
+        "category",
+        "shortDescription",
+        "detailedDescription",
+        "priceDts",
+        "mainPhoto",
+        "galleryPhotos",
+        "referenceCode",
+        "availability",
+        "authorId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted administrator membership record.",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["admin"],
+          "minLength": 5,
+          "maxLength": 5
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["role", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/brands/{brandId}": {
+      "schema": {
+        "$ref": "#/entities/BrandItem"
+      },
+      "description": "Curated brand products displayed in the Tropicanna marketing showcase."
+    },
+    "/admins/{adminId}": {
+      "schema": {
+        "$ref": "#/entities/AdminRecord"
+      },
+      "description": "Trusted administrator registry."
+    }
+  }
+}

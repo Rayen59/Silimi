@@ -1,0 +1,148 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerified() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'rayenbouazizi337@gmail.com'
+      );
+    }
+
+    // Validation Blueprint for BrandItem (/brands/{brandId})
+    function isValidBrandItem(data) {
+      return data.keys().hasAll([
+        'title',
+        'brandName',
+        'category',
+        'shortDescription',
+        'detailedDescription',
+        'priceDts',
+        'mainPhoto',
+        'galleryPhotos',
+        'referenceCode',
+        'availability',
+        'authorId',
+        'createdAt',
+        'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'title',
+        'brandName',
+        'category',
+        'shortDescription',
+        'detailedDescription',
+        'priceDts',
+        'mainPhoto',
+        'galleryPhotos',
+        'referenceCode',
+        'availability',
+        'authorId',
+        'createdAt',
+        'updatedAt'
+      ]) &&
+      data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+      data.brandName is string && data.brandName.size() >= 1 && data.brandName.size() <= 80 &&
+      data.category is string && data.category.size() >= 1 && data.category.size() <= 60 &&
+      data.shortDescription is string && data.shortDescription.size() >= 1 && data.shortDescription.size() <= 300 &&
+      data.detailedDescription is string && data.detailedDescription.size() >= 1 && data.detailedDescription.size() <= 4000 &&
+      (data.priceDts is int || data.priceDts is float) && data.priceDts >= 0 && data.priceDts <= 10000000 &&
+      data.mainPhoto is string && data.mainPhoto.size() >= 1 && data.mainPhoto.size() <= 700000 &&
+      data.galleryPhotos is list && data.galleryPhotos.size() <= 8 &&
+      (data.galleryPhotos.size() == 0 || (data.galleryPhotos[0] is string && data.galleryPhotos[0].size() >= 1 && data.galleryPhotos[0].size() <= 700000)) &&
+      data.referenceCode is string && data.referenceCode.size() >= 1 && data.referenceCode.size() <= 40 && data.referenceCode.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.availability is string && data.availability.size() >= 1 && data.availability.size() <= 30 && data.availability in ['En Stock', 'Édition Limitée', 'Sur Commande'] &&
+      data.authorId is string && data.authorId.size() >= 1 && data.authorId.size() <= 128 && data.authorId.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.authorId == request.auth.uid &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Connection health check endpoint
+    match /test/{docId} {
+      allow get: if isSignedIn() && isValidId(docId);
+      allow list, create, update, delete: if false;
+    }
+
+    // Trusted Administrators Registry
+    match /admins/{adminId} {
+      allow get: if isVerified() && isValidId(adminId) && request.auth.uid == adminId;
+      allow list, create, update, delete: if false;
+    }
+
+    // Curated Brand Products Collection
+    match /brands/{brandId} {
+      allow get: if isSignedIn() && isValidId(brandId) && (
+        existing().availability in ['En Stock', 'Édition Limitée', 'Sur Commande'] ||
+        existing().authorId == request.auth.uid ||
+        isAdmin()
+      );
+
+      allow list: if isSignedIn() && (
+        resource.data.availability in ['En Stock', 'Édition Limitée', 'Sur Commande'] ||
+        resource.data.authorId == request.auth.uid
+      );
+
+      allow create: if isVerified() &&
+        isValidId(brandId) &&
+        isValidBrandItem(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        isAdmin();
+
+      allow update: if isVerified() &&
+        isValidId(brandId) &&
+        isValidBrandItem(incoming()) &&
+        incoming().authorId == existing().authorId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          isAdmin() ||
+          (
+            existing().authorId == request.auth.uid &&
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'title',
+              'brandName',
+              'category',
+              'shortDescription',
+              'detailedDescription',
+              'priceDts',
+              'mainPhoto',
+              'galleryPhotos',
+              'referenceCode',
+              'availability',
+              'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isVerified() && isValidId(brandId) && isAdmin();
+    }
+  }
+}

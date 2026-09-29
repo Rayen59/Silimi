@@ -1,0 +1,6 @@
+{
+  "name": "Tropicanna — Maison de Marques & Collection Privée",
+  "description": "Portail privé de marketing et vitrine de marques d'exception avec accès par code, galerie détaillée, prix en Dinars Tunisiens (DTS), panier persistant et commande directe via WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
