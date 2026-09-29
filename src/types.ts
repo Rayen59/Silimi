@@ -14,7 +14,7 @@ export const VALIDATION_LIMITS = {
   ID_PATTERN: /^[a-zA-Z0-9_\-]+$/,
 } as const;
 
-export type AvailabilityStatus = 'En Stock' | 'Édition Limitée' | 'Sur Commande';
+export type AvailabilityStatus = 'In Stock' | 'Limited Edition' | 'Made to Order';
 
 export interface BrandItem {
   id: string;

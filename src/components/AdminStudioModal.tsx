@@ -52,17 +52,17 @@ async function compressImageFile(file: File): Promise<string> {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          reject(new Error('Impossible d’initialiser le canvas image.'));
+          reject(new Error('Failed to initialize image canvas.'));
           return;
         }
         ctx.drawImage(img, 0, 0, width, height);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         resolve(dataUrl);
       };
-      img.onerror = () => reject(new Error('Fichier image invalide.'));
+      img.onerror = () => reject(new Error('Invalid image file.'));
       img.src = String(event.target?.result || '');
     };
-    reader.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+    reader.onerror = () => reject(new Error('Failed to read file.'));
     reader.readAsDataURL(file);
   });
 }
@@ -75,17 +75,17 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
 }) => {
   const [title, setTitle] = useState(initialBrand?.title || '');
   const [brandName, setBrandName] = useState(
-    initialBrand?.brandName || 'Maison Tropicanna'
+    initialBrand?.brandName || 'Tropicanna'
   );
   const [category, setCategory] = useState(
-    initialBrand?.category || 'Collection Privée'
+    initialBrand?.category || 'Private Collection'
   );
   const [referenceCode, setReferenceCode] = useState(
     initialBrand?.referenceCode ||
       `TRP-${Math.floor(100 + Math.random() * 900)}`
   );
   const [availability, setAvailability] = useState<AvailabilityStatus>(
-    initialBrand?.availability || 'En Stock'
+    initialBrand?.availability || 'In Stock'
   );
   const [priceDtsInput, setPriceDtsInput] = useState<string>(
     initialBrand ? String(initialBrand.priceDts) : ''
@@ -131,7 +131,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
         VALIDATION_LIMITS.GALLERY_MAX_COUNT - photos.length;
       if (remainingSlots <= 0) {
         setError(
-          `Vous pouvez ajouter jusqu'à ${VALIDATION_LIMITS.GALLERY_MAX_COUNT} photos maximum par brin.`
+          `You can upload up to ${VALIDATION_LIMITS.GALLERY_MAX_COUNT} photos maximum per item.`
         );
         return;
       }
@@ -155,9 +155,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
       }
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : 'Impossible de charger cette photo.'
+        err instanceof Error ? err.message : 'Unable to upload this photo.'
       );
     } finally {
       e.target.value = '';
@@ -174,7 +172,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
     }
     if (photos.length >= VALIDATION_LIMITS.GALLERY_MAX_COUNT) {
       setError(
-        `Limite de ${VALIDATION_LIMITS.GALLERY_MAX_COUNT} photos atteinte.`
+        `Maximum limit of ${VALIDATION_LIMITS.GALLERY_MAX_COUNT} photos reached.`
       );
       return;
     }
@@ -219,14 +217,14 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
 
     if (!cleanTitle || !cleanBrand || !cleanShort || !cleanDetailed) {
       setError(
-        'Veuillez remplir le nom du brin, la marque, la petite description d’accueil et la description détaillée.'
+        'Please fill in the product name, brand name, short homepage description, and detailed description.'
       );
       return;
     }
 
     if (photos.length === 0 || !mainPhoto) {
       setError(
-        'Veuillez ajouter au moins une photo et choisir la photo principale qui s’affichera à l’accueil.'
+        'Please upload at least one photo and select the Main Photo that will appear on the home page.'
       );
       return;
     }
@@ -236,7 +234,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
       parsedPrice < 0 ||
       parsedPrice > VALIDATION_LIMITS.PRICE_MAX
     ) {
-      setError('Veuillez saisir un prix en DTS valide.');
+      setError('Please enter a valid price in DTS.');
       return;
     }
 
@@ -251,7 +249,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
         {
           title: cleanTitle,
           brandName: cleanBrand,
-          category: cleanCategory || 'Collection Privée',
+          category: cleanCategory || 'Private Collection',
           referenceCode: cleanRef || 'TRP-01',
           availability,
           priceDts: parsedPrice,
@@ -267,7 +265,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
       setError(
         err instanceof Error
           ? err.message
-          : 'Une erreur est survenue lors de la publication.'
+          : 'An error occurred while publishing.'
       );
     } finally {
       setIsSaving(false);
@@ -288,14 +286,14 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
         <div className="flex items-center justify-between px-6 py-5 bg-[#161514] text-[#FAF8F5]">
           <div>
             <div className="flex items-center gap-2 text-xs text-[#D4B475]">
-              <span>Studio Administrateur Tropicanna</span>
+              <span>Tropicanna Admin Studio</span>
               <span aria-hidden="true">·</span>
-              <span>Direction Artistique</span>
+              <span>Creative Direction</span>
             </div>
             <h2 className="font-display text-2xl font-normal text-[#FAF8F5]">
               {initialBrand
-                ? `Modifier « ${initialBrand.title} »`
-                : 'Publier un Nouveau Brin & Galerie Photos'}
+                ? `Edit "${initialBrand.title}"`
+                : 'Publish a New Brand Item & Photo Gallery'}
             </h2>
           </div>
 
@@ -303,7 +301,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
             type="button"
             onClick={onClose}
             className="p-2 rounded-lg text-[#FAF8F5]/70 hover:text-[#FAF8F5] hover:bg-[#FAF8F5]/10 transition-colors cursor-pointer"
-            aria-label="Fermer la fenêtre d'administration"
+            aria-label="Close admin modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -326,11 +324,11 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#161514]/10">
               <div>
                 <h3 className="font-display text-xl font-semibold text-[#161514]">
-                  01. Photos du Brin & Choix de la Photo Principale d’Accueil
+                  01. Item Photos & Main Home Page Cover Selection
                 </h3>
                 <p className="text-xs text-[#6E6A64]">
-                  Importez plusieurs photos et cliquez sur « Définir comme Photo
-                  Principale » pour choisir celle qui s’affichera sur l’accueil.
+                  Upload multiple photos and click "Set as Main Photo" to choose
+                  which image is displayed on the home page.
                 </p>
               </div>
               <span className="text-xs font-mono-tabular text-[#6E6A64]">
@@ -343,10 +341,10 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
               <label className="md:col-span-5 flex flex-col items-center justify-center gap-2 p-5 rounded-xl border-2 border-dashed border-[#9A7432]/50 bg-[#F3EFE8]/70 hover:bg-[#F3EFE8] transition-colors cursor-pointer text-center">
                 <Upload className="w-5 h-5 text-[#9A7432]" />
                 <span className="text-xs font-semibold text-[#161514]">
-                  Importer des photos depuis votre appareil
+                  Upload photos from your device
                 </span>
                 <span className="text-[11px] text-[#6E6A64]">
-                  JPG, PNG, WEBP · Plusieurs photos autorisées
+                  JPG, PNG, WEBP · Multiple photos allowed
                 </span>
                 <input
                   type="file"
@@ -360,7 +358,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
               <div className="md:col-span-7 flex flex-col justify-center gap-3 p-4 rounded-xl bg-white border border-[#161514]/10">
                 <div>
                   <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                    Ou ajouter une photo par lien direct (URL)
+                    Or add a photo via direct link (URL)
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -376,7 +374,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#161514] text-[#FAF8F5] text-xs font-medium rounded-lg hover:bg-[#2C2A28] transition-colors cursor-pointer whitespace-nowrap"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Ajouter</span>
+                      <span>Add</span>
                     </button>
                   </div>
                 </div>
@@ -421,7 +419,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                             }`}
                           />
                           <span>
-                            {isMain ? 'Photo Principale' : 'Choisir Principale'}
+                            {isMain ? 'Main Photo' : 'Set as Main'}
                           </span>
                         </button>
 
@@ -429,7 +427,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                           type="button"
                           onClick={() => handleRemovePhoto(photoUrl)}
                           className="p-1.5 text-[#6E6A64] hover:text-[#8B3A3A] transition-colors cursor-pointer"
-                          aria-label="Supprimer cette photo"
+                          aria-label="Remove photo"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -445,14 +443,14 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
           <div className="space-y-4">
             <div className="pb-2 border-b border-[#161514]/10">
               <h3 className="font-display text-xl font-semibold text-[#161514]">
-                02. Identité du Brin & Tarif en Dinars (DTS)
+                02. Brand Identity & Price in Dinars (DTS)
               </h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                  Nom du Brin / Produit *
+                  Item / Product Name *
                 </label>
                 <input
                   type="text"
@@ -460,14 +458,14 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                   maxLength={VALIDATION_LIMITS.TITLE_MAX}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Élixir d'Ambre & Néroli"
+                  placeholder="e.g. Amber & Neroli Elixir"
                   className="w-full bg-white border border-[#161514]/15 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#9A7432]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                  Nom de la Marque (Brand) *
+                  Brand Name *
                 </label>
                 <input
                   type="text"
@@ -475,21 +473,21 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                   maxLength={VALIDATION_LIMITS.BRAND_NAME_MAX}
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="Ex: Maison Tropicanna Parfums"
+                  placeholder="e.g. Tropicanna Perfumes"
                   className="w-full bg-white border border-[#161514]/15 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#9A7432]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                  Catégorie
+                  Category
                 </label>
                 <input
                   type="text"
                   maxLength={VALIDATION_LIMITS.CATEGORY_MAX}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  placeholder="Ex: Haute Parfumerie, Maroquinerie, Horlogerie..."
+                  placeholder="e.g. Fragrances, Leather Goods, Watches..."
                   className="w-full bg-white border border-[#161514]/15 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#9A7432]"
                 />
               </div>
@@ -497,7 +495,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                    Code Référence
+                    Reference Code
                   </label>
                   <input
                     type="text"
@@ -511,7 +509,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                    Disponibilité
+                    Availability
                   </label>
                   <select
                     value={availability}
@@ -520,9 +518,9 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                     }
                     className="w-full bg-white border border-[#161514]/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#9A7432]"
                   >
-                    <option value="En Stock">En Stock</option>
-                    <option value="Édition Limitée">Édition Limitée</option>
-                    <option value="Sur Commande">Sur Commande</option>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Limited Edition">Limited Edition</option>
+                    <option value="Made to Order">Made to Order</option>
                   </select>
                 </div>
               </div>
@@ -532,7 +530,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-2">
               <div className="lg:col-span-5">
                 <label className="block text-xs font-medium text-[#161514] mb-1.5">
-                  Prix Officiel en DTS (Dinars Tunisiens) *
+                  Official Price in DTS (Tunisian Dinars) *
                 </label>
                 <div className="relative">
                   <input
@@ -554,7 +552,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
 
               <div className="lg:col-span-7">
                 <span className="block text-[11px] text-[#6E6A64] mb-1.5">
-                  Aperçu en direct de l’affichage extraordinaire du prix :
+                  Live preview of the extraordinary DTS price plaque:
                 </span>
                 <PriceDisplay priceDts={validPrice} variant="detail" />
               </div>
@@ -565,15 +563,14 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
           <div className="space-y-4">
             <div className="pb-2 border-b border-[#161514]/10">
               <h3 className="font-display text-xl font-semibold text-[#161514]">
-                03. Textes & Descriptions Rédigés par l’Administrateur
+                03. Descriptions Written by the Administrator
               </h3>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-medium text-[#161514]">
-                  Petite description pour l’Accueil (affichée sur la carte de
-                  présentation) *
+                  Short Home Page Description (displayed on the home card) *
                 </label>
                 <span className="text-[11px] font-mono-tabular text-[#6E6A64]">
                   {shortDescription.length} / {VALIDATION_LIMITS.SHORT_DESC_MAX}
@@ -585,7 +582,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                 maxLength={VALIDATION_LIMITS.SHORT_DESC_MAX}
                 value={shortDescription}
                 onChange={(e) => setShortDescription(e.target.value)}
-                placeholder="Rédigez une courte phrase d'accroche élégante qui s'affichera sous la photo principale à l'accueil..."
+                placeholder="Write a concise, captivating teaser that appears underneath the main photo on the home page..."
                 className="w-full bg-white border border-[#161514]/15 rounded-lg p-3.5 text-sm focus:outline-none focus:border-[#9A7432]"
               />
             </div>
@@ -593,8 +590,8 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-medium text-[#161514]">
-                  Description en Détail (affichée lorsque le visiteur clique sur
-                  le brin) *
+                  Full Detailed Description (displayed when a user clicks the
+                  item) *
                 </label>
                 <span className="text-[11px] font-mono-tabular text-[#6E6A64]">
                   {detailedDescription.length} /{' '}
@@ -607,7 +604,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
                 maxLength={VALIDATION_LIMITS.DETAILED_DESC_MAX}
                 value={detailedDescription}
                 onChange={(e) => setDetailedDescription(e.target.value)}
-                placeholder="Rédigez ici l'histoire complète du brin, ses matières, ses dimensions, ses notes et tous les détails que le client découvrira..."
+                placeholder="Write the complete story, materials, dimensions, specifications, and details that the customer will read on the product page..."
                 className="w-full bg-white border border-[#161514]/15 rounded-lg p-3.5 text-sm focus:outline-none focus:border-[#9A7432]"
               />
             </div>
@@ -620,7 +617,7 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
               onClick={onClose}
               className="px-5 py-2.5 rounded-lg border border-[#161514]/20 text-xs font-medium text-[#161514] hover:bg-[#F3EFE8] transition-colors cursor-pointer whitespace-nowrap"
             >
-              Annuler
+              Cancel
             </button>
             <button
               type="submit"
@@ -630,10 +627,10 @@ export const AdminStudioModal: React.FC<AdminStudioModalProps> = ({
               <CheckCircle2 className="w-4 h-4 text-[#D4B475]" />
               <span>
                 {isSaving
-                  ? 'Enregistrement...'
+                  ? 'Saving...'
                   : initialBrand
-                    ? 'Enregistrer les Modifications'
-                    : 'Publier ce Brin dans la Vitrine'}
+                    ? 'Save Changes'
+                    : 'Publish Item to Showcase'}
               </span>
             </button>
           </div>

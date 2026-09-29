@@ -40,6 +40,7 @@ import {
   BrandItem,
   CartItem,
   AccessRole,
+  AvailabilityStatus,
   WHATSAPP_DISPLAY,
   buildWhatsAppUrl,
   formatDtsNumber,
@@ -55,6 +56,16 @@ import { AdminStudioModal } from './components/AdminStudioModal';
 
 const LOCAL_BRANDS_KEY = 'tropicanna_catalog_brands_blank_v2';
 const LOCAL_CART_KEY = 'tropicanna_saved_cart_blank_v2';
+
+function normalizeAvailability(raw: unknown): AvailabilityStatus {
+  if (raw === 'Limited Edition' || raw === 'Édition Limitée') {
+    return 'Limited Edition';
+  }
+  if (raw === 'Made to Order' || raw === 'Sur Commande') {
+    return 'Made to Order';
+  }
+  return 'In Stock';
+}
 
 export default function App() {
   // Password Gate Role ('locked' on initial arrival so user enters code immediately)
@@ -73,7 +84,10 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed;
+          return parsed.map((item) => ({
+            ...item,
+            availability: normalizeAvailability(item.availability),
+          }));
         }
       }
     } catch {
@@ -82,7 +96,7 @@ export default function App() {
     return INITIAL_BRANDS;
   });
 
-  // Persistent Shopping Cart ("ajouter au panier pour revenir après")
+  // Persistent Shopping Cart (add to cart and return later)
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       localStorage.removeItem('tropicanna_saved_cart_v1');
@@ -128,6 +142,9 @@ export default function App() {
     const q = query(
       collection(db, brandsPath),
       where('availability', 'in', [
+        'In Stock',
+        'Limited Edition',
+        'Made to Order',
         'En Stock',
         'Édition Limitée',
         'Sur Commande',
@@ -144,7 +161,7 @@ export default function App() {
               id: docSnap.id,
               title: String(d.title || ''),
               brandName: String(d.brandName || ''),
-              category: String(d.category || 'Collection Privée'),
+              category: String(d.category || 'Private Collection'),
               shortDescription: String(d.shortDescription || ''),
               detailedDescription: String(d.detailedDescription || ''),
               priceDts: Number(d.priceDts || 0),
@@ -153,7 +170,7 @@ export default function App() {
                 ? d.galleryPhotos.map(String)
                 : [],
               referenceCode: String(d.referenceCode || 'TRP-01'),
-              availability: d.availability || 'En Stock',
+              availability: normalizeAvailability(d.availability),
               authorId: String(d.authorId || ''),
               createdAt: d.createdAt?.toDate
                 ? d.createdAt.toDate().toISOString()
@@ -370,7 +387,7 @@ export default function App() {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
-        setCloudNotice('Brin synchronisé sur le Cloud Firestore Tropicanna.');
+        setCloudNotice('Item synchronized with Tropicanna Cloud Firestore.');
         window.setTimeout(() => setCloudNotice(null), 4000);
       } catch (error) {
         handleFirestoreError(
@@ -380,7 +397,7 @@ export default function App() {
         );
       }
     } else {
-      setCloudNotice('Brin publié dans la vitrine Tropicanna.');
+      setCloudNotice('Item published to the Tropicanna showcase.');
       window.setTimeout(() => setCloudNotice(null), 3500);
     }
   };
@@ -404,11 +421,11 @@ export default function App() {
   const handleGoogleCloudConnect = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-      setCloudNotice('Synchronisation Cloud Administrateur activée.');
+      setCloudNotice('Admin Cloud Synchronization enabled.');
       window.setTimeout(() => setCloudNotice(null), 3500);
     } catch {
       setCloudNotice(
-        'Connexion Google annulée. Vos publications restent enregistrées localement.'
+        'Google sign-in cancelled. Your published items remain saved locally.'
       );
       window.setTimeout(() => setCloudNotice(null), 3500);
     }
@@ -429,14 +446,14 @@ export default function App() {
     }
   };
 
-  // 1. Entry Password Gate ("lorsque il entre a la page directement alors afficher a lui un code où il peut saisir un mot de passe")
+  // 1. Entry Password Gate
   if (role === 'locked') {
     return <PasswordGate onUnlock={(unlockedRole) => setRole(unlockedRole)} />;
   }
 
   const featuredHeroBrand = brands[0];
   const generalWhatsAppUrl = buildWhatsAppUrl(
-    'Bonjour Maison Tropicanna, je visite votre vitrine privée et je souhaite avoir des informations sur vos brins.'
+    'Hello Tropicanna, I am visiting your private showcase and would like more information about your items.'
   );
 
   return (
@@ -446,7 +463,7 @@ export default function App() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Zone 1: Single text element wordmark */}
           <a
-            href="#vitrine"
+            href="#showcase"
             onClick={(e) => {
               e.preventDefault();
               setSelectedBrandId(null);
@@ -472,17 +489,17 @@ export default function App() {
               Collection
             </a>
             <a
-              href="#maisons"
+              href="#craftsmanship"
               onClick={(e) => {
                 e.preventDefault();
                 setSelectedBrandId(null);
                 document
-                  .getElementById('maisons')
+                  .getElementById('craftsmanship')
                   ?.scrollIntoView({ behavior: 'smooth' });
               }}
               className="hover:text-[#161514] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
             >
-              Maisons & Savoir-Faire
+              Brands & Craftsmanship
             </a>
             <a
               href={generalWhatsAppUrl}
@@ -490,7 +507,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="hover:text-[#161514] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
             >
-              Contact Direct
+              Direct Contact
             </a>
             {role === 'admin' && (
               <button
@@ -501,7 +518,7 @@ export default function App() {
                 }}
                 className="text-[#9A7432] hover:text-[#161514] hover:underline underline-offset-4 transition-colors cursor-pointer whitespace-nowrap"
               >
-                Studio Admin
+                Admin Studio
               </button>
             )}
           </nav>
@@ -514,17 +531,17 @@ export default function App() {
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap"
             >
               <ShoppingBag className="w-3.5 h-3.5 text-[#D4B475]" />
-              <span>Panier ({totalCartItems})</span>
+              <span>Cart ({totalCartItems})</span>
             </button>
 
             <button
               type="button"
               onClick={handleLogout}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#161514]/20 bg-white hover:bg-[#FDF2F2] hover:border-[#8B3A3A]/40 text-xs font-medium text-[#161514] hover:text-[#8B3A3A] transition-colors cursor-pointer whitespace-nowrap"
-              title="Se déconnecter du compte"
+              title="Log out of account"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Déconnexion</span>
+              <span>Log Out</span>
             </button>
           </div>
         </div>
@@ -536,14 +553,14 @@ export default function App() {
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="text-[#D4B475] font-medium">
-                Espace Administrateur Actif
+                Active Administrator Workspace
               </span>
               <span aria-hidden="true" className="text-[#FAF8F5]/40">
                 ·
               </span>
               <span className="text-[#FAF8F5]/80">
-                Partagez vos brins, choisissez la photo principale d’accueil et
-                fixez les tarifs en DTS.
+                Share your brand items, choose the home page cover photo, and set
+                prices in DTS.
               </span>
               {cloudNotice && (
                 <>
@@ -565,7 +582,7 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#FAF8F5]/10 hover:bg-[#FAF8F5]/20 text-[#FAF8F5] text-xs transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <Cloud className="w-3.5 h-3.5 text-[#D4B475]" />
-                  <span>Activer Sync Cloud</span>
+                  <span>Enable Cloud Sync</span>
                 </button>
               )}
 
@@ -578,7 +595,7 @@ export default function App() {
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#D4B475] hover:bg-[#DFC288] text-[#121110] font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Ajouter un Brin & Photos</span>
+                <span>Add Item & Photos</span>
               </button>
 
               <button
@@ -587,7 +604,7 @@ export default function App() {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[#FAF8F5]/20 hover:bg-[#FAF8F5]/10 text-[#FAF8F5] text-xs transition-colors cursor-pointer whitespace-nowrap"
               >
                 <LogOut className="w-3.5 h-3.5 text-[#D4B475]" />
-                <span>Déconnexion Admin</span>
+                <span>Admin Log Out</span>
               </button>
             </div>
           </div>
@@ -612,7 +629,7 @@ export default function App() {
           <>
             {/* Section 1: Storefront Hero Showcase */}
             <section
-              id="vitrine"
+              id="showcase"
               className="relative border-b border-[#161514]/10 bg-[#F3EFE8]"
             >
               <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -621,28 +638,26 @@ export default function App() {
                   <div className="lg:col-span-6 space-y-6">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-[#6E6A64]">
                       <span className="font-medium text-[#9A7432]">
-                        Maison Tropicanna
+                        Tropicanna House
                       </span>
                       <span aria-hidden="true">·</span>
-                      <span>Vitrine Privée de Marques</span>
+                      <span>Private Brand Showcase</span>
                       <span aria-hidden="true">·</span>
-                      <span>Tarifs Certifiés en DTS</span>
+                      <span>Certified Pricing in DTS</span>
                     </div>
 
                     <h1
                       className="font-display text-4xl sm:text-5xl lg:text-[54px] font-normal text-[#161514] leading-[1.08] tracking-tight"
                       style={{ textWrap: 'balance' }}
                     >
-                      Des brins d’exception présentés dans leurs moindres
-                      détails.
+                      Exceptional brand creations presented in every detail.
                     </h1>
 
                     <p className="text-base text-[#4A4742] leading-relaxed max-w-xl">
-                      Chaque création partagée par notre maison dévoile sa
-                      galerie photographique complète, son histoire détaillée et
-                      son prix en Dinars Tunisiens (DTS). Commandez
-                      instantanément par WhatsApp ou conservez votre sélection
-                      dans votre panier privé.
+                      Every creation shared by our house reveals its complete
+                      photo gallery, detailed story, and official price in
+                      Tunisian Dinars (DTS). Order instantaneously via WhatsApp
+                      or save your selection to your private cart for later.
                     </p>
 
                     <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -656,7 +671,7 @@ export default function App() {
                         }}
                         className="inline-flex items-center gap-2 px-6 py-3.5 rounded-lg bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] text-xs sm:text-sm font-medium transition-colors whitespace-nowrap"
                       >
-                        <span>Découvrir les Brins ({brands.length})</span>
+                        <span>Explore Collection ({brands.length})</span>
                         <ArrowUpRight className="w-4 h-4 text-[#D4B475]" />
                       </a>
 
@@ -670,7 +685,7 @@ export default function App() {
                           className="inline-flex items-center gap-2 px-5 py-3.5 rounded-lg border border-[#9A7432] bg-white hover:bg-[#FAF8F5] text-[#161514] text-xs sm:text-sm font-medium transition-colors cursor-pointer whitespace-nowrap"
                         >
                           <Plus className="w-4 h-4 text-[#9A7432]" />
-                          <span>Publier un Nouveau Brin</span>
+                          <span>Publish a New Item</span>
                         </button>
                       ) : (
                         <a
@@ -680,7 +695,7 @@ export default function App() {
                           className="inline-flex items-center gap-2 px-5 py-3.5 rounded-lg border border-[#161514]/20 bg-white hover:bg-[#FAF8F5] text-[#161514] text-xs sm:text-sm font-medium transition-colors whitespace-nowrap"
                         >
                           <MessageCircle className="w-4 h-4 text-[#9A7432]" />
-                          <span>WhatsApp Direct ({WHATSAPP_DISPLAY})</span>
+                          <span>Direct WhatsApp ({WHATSAPP_DISPLAY})</span>
                         </a>
                       )}
                     </div>
@@ -695,7 +710,7 @@ export default function App() {
                         }
                         alt={
                           featuredHeroBrand?.title ||
-                          'Collection Privée Tropicanna'
+                          'Tropicanna Private Collection'
                         }
                         className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                       />
@@ -705,7 +720,7 @@ export default function App() {
                         <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                           <div className="text-[#FAF8F5]">
                             <div className="flex items-center gap-2 text-xs text-[#D4B475] mb-1">
-                              <span>À la Une</span>
+                              <span>Featured Spotlight</span>
                               <span aria-hidden="true">·</span>
                               <span>{featuredHeroBrand.brandName}</span>
                             </div>
@@ -719,7 +734,7 @@ export default function App() {
                               }
                               className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#D4B475] hover:underline cursor-pointer"
                             >
-                              <span>Voir les photos & détails</span>
+                              <span>View photos & full details</span>
                               <ArrowUpRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -736,7 +751,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* Section 2: Featured Brands & Products Collection ("les brins") */}
+            {/* Section 2: Featured Brands & Products Collection */}
             <section
               id="collection"
               className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20"
@@ -745,15 +760,15 @@ export default function App() {
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#161514]/10">
                 <div>
                   <div className="flex items-center gap-2 text-xs text-[#6E6A64] mb-2">
-                    <span>01. Catalogue Officiel</span>
+                    <span>01. Official Catalog</span>
                     <span aria-hidden="true">·</span>
-                    <span>Cliquez sur un brin pour voir tous les détails</span>
+                    <span>Click any item to explore its full gallery & details</span>
                   </div>
                   <h2
                     className="font-display text-3xl sm:text-4xl font-semibold text-[#161514]"
                     style={{ textWrap: 'balance' }}
                   >
-                    Les Brins & Marques Partagés
+                    Shared Brands & Creations
                   </h2>
                 </div>
 
@@ -764,7 +779,7 @@ export default function App() {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Rechercher un brin, une marque..."
+                    placeholder="Search an item, brand, reference..."
                     className="w-full bg-white border border-[#161514]/15 focus:border-[#9A7432] rounded-lg pl-10 pr-4 py-2 text-xs sm:text-sm text-[#161514] placeholder-[#6E6A64] focus:outline-none transition-colors"
                   />
                 </div>
@@ -782,7 +797,7 @@ export default function App() {
                         : 'text-[#5A5650] hover:text-[#161514]'
                     }`}
                   >
-                    Tous les Brins ({brands.length})
+                    All Items ({brands.length})
                   </button>
                   {categories.map((cat) => (
                     <button
@@ -810,7 +825,7 @@ export default function App() {
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#9A7432] hover:text-[#161514] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Ajouter un nouveau brin à l’accueil</span>
+                    <span>Add a new item to the home page</span>
                   </button>
                 )}
               </div>
@@ -820,12 +835,12 @@ export default function App() {
                 <div className="text-center py-20 bg-[#F3EFE8] rounded-xl border border-[#161514]/10 p-8 max-w-2xl mx-auto">
                   <Sparkles className="w-6 h-6 text-[#9A7432] mx-auto mb-3" />
                   <h3 className="font-display text-2xl sm:text-3xl text-[#161514] mb-2">
-                    Aucun brin publié pour le moment
+                    No items published yet
                   </h3>
                   <p className="text-sm text-[#6E6A64] mb-6 leading-relaxed">
                     {role === 'admin'
-                      ? 'Votre catalogue est vierge. Cliquez sur le bouton ci-dessous pour ajouter votre premier brin, importer vos photos, choisir la photo principale d’accueil et définir son prix en DTS.'
-                      : 'La collection est en cours de préparation par l’administrateur. Revenez prochainement ou contactez-nous directement sur WhatsApp.'}
+                      ? 'Your catalog is currently blank. Click the button below to publish your first item, upload your photos, choose the main home page cover photo, and set its price in DTS.'
+                      : 'The collection is currently being curated by the administrator. Please check back soon or contact us directly via WhatsApp.'}
                   </p>
                   {role === 'admin' ? (
                     <button
@@ -837,7 +852,7 @@ export default function App() {
                       className="inline-flex items-center gap-2 px-6 py-3 bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] text-xs sm:text-sm font-medium rounded-lg cursor-pointer whitespace-nowrap transition-colors"
                     >
                       <Plus className="w-4 h-4 text-[#D4B475]" />
-                      <span>Publier votre premier brin</span>
+                      <span>Publish Your First Item</span>
                     </button>
                   ) : (
                     <a
@@ -847,7 +862,7 @@ export default function App() {
                       className="inline-flex items-center gap-2 px-6 py-3 bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors"
                     >
                       <MessageCircle className="w-4 h-4 text-[#D4B475]" />
-                      <span>Contacter l’Admin ({WHATSAPP_DISPLAY})</span>
+                      <span>Contact Admin ({WHATSAPP_DISPLAY})</span>
                     </a>
                   )}
                 </div>
@@ -855,11 +870,10 @@ export default function App() {
                 <div className="text-center py-16 bg-[#F3EFE8] rounded-xl border border-[#161514]/10 p-8">
                   <Sparkles className="w-6 h-6 text-[#9A7432] mx-auto mb-3" />
                   <h3 className="font-display text-2xl text-[#161514] mb-2">
-                    Aucun brin ne correspond à votre recherche
+                    No items match your search
                   </h3>
                   <p className="text-sm text-[#6E6A64] mb-5">
-                    Réinitialisez les filtres pour afficher l’ensemble de la
-                    collection Tropicanna.
+                    Reset the filters to view the entire Tropicanna collection.
                   </p>
                   <button
                     type="button"
@@ -869,7 +883,7 @@ export default function App() {
                     }}
                     className="px-4 py-2 bg-[#161514] text-[#FAF8F5] text-xs font-medium rounded-lg cursor-pointer whitespace-nowrap"
                   >
-                    Afficher toute la collection
+                    Show Full Collection
                   </button>
                 </div>
               ) : (
@@ -886,11 +900,11 @@ export default function App() {
 
                     const formattedUnit = formatDtsNumber(brand.priceDts);
                     const cardWhatsAppMessage = [
-                      'Bonjour Maison Tropicanna,',
+                      'Hello Tropicanna,',
                       '',
-                      `Je souhaite acheter le brin « ${brand.title} » (${brand.brandName} — Réf: ${brand.referenceCode}) au prix de ${formattedUnit.whole}${formattedUnit.decimals ? ',' + formattedUnit.decimals : ''} DTS.`,
+                      `I would like to purchase "${brand.title}" (${brand.brandName} — Ref: ${brand.referenceCode}) priced at ${formattedUnit.whole}${formattedUnit.decimals ? '.' + formattedUnit.decimals : ''} DTS.`,
                       '',
-                      'Merci de me contacter pour valider ma commande.',
+                      'Please contact me to confirm my order.',
                     ].join('\n');
 
                     const cardWhatsAppUrl =
@@ -907,7 +921,7 @@ export default function App() {
                             type="button"
                             onClick={() => setSelectedBrandId(brand.id)}
                             className="w-full h-full block text-left cursor-pointer focus:outline-none"
-                            aria-label={`Voir les détails de ${brand.title}`}
+                            aria-label={`View details for ${brand.title}`}
                           >
                             <ResilientImage
                               src={brand.mainPhoto}
@@ -926,8 +940,8 @@ export default function App() {
                             <Eye className="w-3 h-3 text-[#D4B475]" />
                             <span>
                               {photoCount > 1
-                                ? `${photoCount} photos · Détails`
-                                : 'Voir détails'}
+                                ? `${photoCount} photos · Details`
+                                : 'View details'}
                             </span>
                           </button>
 
@@ -943,7 +957,7 @@ export default function App() {
                               className="absolute top-3 right-3 inline-flex items-center gap-1 bg-white/95 hover:bg-white text-[#161514] px-2.5 py-1.5 rounded-md text-[11px] font-medium shadow-xs border border-[#161514]/15 cursor-pointer"
                             >
                               <Pencil className="w-3 h-3 text-[#9A7432]" />
-                              <span>Modifier</span>
+                              <span>Edit</span>
                             </button>
                           )}
                         </div>
@@ -997,7 +1011,7 @@ export default function App() {
                                 className="col-span-7 inline-flex items-center justify-center gap-1.5 bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] text-xs font-medium px-3.5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
                               >
                                 <MessageCircle className="w-3.5 h-3.5 text-[#D4B475] shrink-0" />
-                                <span>Acheter</span>
+                                <span>Buy Now</span>
                                 <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
                               </a>
 
@@ -1013,12 +1027,12 @@ export default function App() {
                                 {isAdded ? (
                                   <>
                                     <Check className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Ajouté</span>
+                                    <span>Added</span>
                                   </>
                                 ) : (
                                   <>
                                     <ShoppingBag className="w-3.5 h-3.5 text-[#9A7432] shrink-0" />
-                                    <span>Panier</span>
+                                    <span>Cart</span>
                                   </>
                                 )}
                               </button>
@@ -1034,34 +1048,33 @@ export default function App() {
 
             {/* Section 3: Craftsmanship, Ordering Experience & Direct WhatsApp Concierge */}
             <section
-              id="maisons"
+              id="craftsmanship"
               className="bg-[#161514] text-[#FAF8F5] border-t border-[#161514]"
             >
               <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                   <div className="lg:col-span-7 space-y-4">
                     <div className="flex items-center gap-2 text-xs text-[#D4B475]">
-                      <span>02. Conciergerie & Commande Directe</span>
+                      <span>02. Concierge & Direct Ordering</span>
                       <span aria-hidden="true">·</span>
-                      <span>Service Client Personnalisé</span>
+                      <span>Personalized Client Service</span>
                     </div>
                     <h2
                       className="font-display text-3xl sm:text-4xl font-normal text-[#FAF8F5] leading-tight"
                       style={{ textWrap: 'balance' }}
                     >
-                      Une expérience d’achat simple, directe et sur-mesure.
+                      A simple, direct, and tailored purchasing experience.
                     </h2>
                     <p className="text-sm sm:text-base text-[#FAF8F5]/75 leading-relaxed max-w-2xl">
-                      Chaque brin présenté sur Tropicanna est sélectionné et
-                      documenté par l’administrateur avec ses photographies
-                      originales et son prix en Dinars Tunisiens (DTS). Cliquez
-                      sur « Acheter » pour ouvrir instantanément une discussion
-                      WhatsApp avec notre direction au{' '}
+                      Every creation showcased on Tropicanna is curated and
+                      documented by the administrator with its original
+                      photographs and official price in Tunisian Dinars (DTS).
+                      Click &ldquo;Buy Now&rdquo; to immediately start a direct
+                      WhatsApp conversation with our management at{' '}
                       <span className="text-[#D4B475] font-mono-tabular">
                         {WHATSAPP_DISPLAY}
                       </span>
-                      , ou enregistrez vos articles dans votre panier pour y
-                      revenir plus tard.
+                      , or save items to your cart to return later.
                     </p>
                   </div>
 
@@ -1073,7 +1086,7 @@ export default function App() {
                       className="inline-flex items-center justify-center gap-2.5 bg-[#D4B475] hover:bg-[#DFC288] text-[#121110] font-semibold text-xs sm:text-sm px-6 py-4 rounded-lg transition-colors whitespace-nowrap"
                     >
                       <MessageCircle className="w-4 h-4 shrink-0" />
-                      <span>Discuter sur WhatsApp ({WHATSAPP_DISPLAY})</span>
+                      <span>Chat on WhatsApp ({WHATSAPP_DISPLAY})</span>
                       <ArrowUpRight className="w-4 h-4 shrink-0" />
                     </a>
 
@@ -1083,9 +1096,7 @@ export default function App() {
                       className="inline-flex items-center justify-center gap-2 bg-[#FAF8F5]/10 hover:bg-[#FAF8F5]/15 text-[#FAF8F5] font-medium text-xs sm:text-sm px-6 py-3.5 rounded-lg border border-[#FAF8F5]/15 transition-colors cursor-pointer whitespace-nowrap"
                     >
                       <ShoppingBag className="w-4 h-4 text-[#D4B475]" />
-                      <span>
-                        Consulter mon panier sauvegardé ({totalCartItems})
-                      </span>
+                      <span>View Saved Cart ({totalCartItems})</span>
                     </button>
                   </div>
                 </div>
@@ -1103,7 +1114,7 @@ export default function App() {
               Tropicanna
             </span>
             <span aria-hidden="true">·</span>
-            <span>Maison de Marques & Collection Privée</span>
+            <span>Private Brand House & Exclusive Collection</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -1113,7 +1124,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="hover:text-[#161514] transition-colors"
             >
-              WhatsApp : {WHATSAPP_DISPLAY}
+              WhatsApp: {WHATSAPP_DISPLAY}
             </a>
             <span aria-hidden="true">·</span>
             <button
@@ -1121,7 +1132,7 @@ export default function App() {
               onClick={() => setIsCartOpen(true)}
               className="hover:text-[#161514] transition-colors cursor-pointer"
             >
-              Panier ({totalCartItems})
+              Cart ({totalCartItems})
             </button>
             <span aria-hidden="true">·</span>
             <button
@@ -1131,7 +1142,7 @@ export default function App() {
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>
-                Déconnexion ({role === 'admin' ? 'Compte Admin' : 'Compte Client'})
+                Log Out ({role === 'admin' ? 'Admin Account' : 'Client Account'})
               </span>
             </button>
           </div>

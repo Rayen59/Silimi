@@ -32,7 +32,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
     }
 
     setError(
-      'Code d’accès incorrect. Veuillez vérifier votre mot de passe confidentiel.'
+      'Invalid access code. Please verify your confidential invitation password.'
     );
   };
 
@@ -42,7 +42,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
       <div className="relative hidden lg:flex lg:col-span-7 overflow-hidden bg-[#1A1816]">
         <ResilientImage
           src={HERO_SHOWROOM_IMAGE}
-          alt="Showroom Privé Maison Tropicanna"
+          alt="Tropicanna Private Showroom"
           className="w-full h-full object-cover opacity-85 scale-105 transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#121110] via-[#121110]/45 to-transparent" />
@@ -56,22 +56,22 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
 
           <div className="max-w-xl">
             <div className="flex items-center gap-2 text-xs text-[#D4B475] mb-3">
-              <span>Showroom Privé</span>
+              <span>Private Showroom</span>
               <span aria-hidden="true">·</span>
-              <span>Marques & Créations Exclusives</span>
+              <span>Exclusive Brands & Creations</span>
               <span aria-hidden="true">·</span>
-              <span>Tunisie</span>
+              <span>Tunisia</span>
             </div>
             <h1
               className="font-display text-4xl xl:text-5xl font-normal leading-tight text-[#FAF8F5] mb-4"
               style={{ textWrap: 'balance' }}
             >
-              L’excellence des marques sélectionnées en cercle privé.
+              Curated luxury brands presented in a private circle.
             </h1>
             <p className="text-sm text-[#FAF8F5]/75 leading-relaxed max-w-lg">
-              Accédez à notre catalogue confidentiel de créations, découvrez les
-              galeries détaillées de chaque brin, consultez les tarifs officiels
-              en Dinars Tunisiens (DTS) et commandez en ligne directe.
+              Access our confidential catalog of creations, explore full photo
+              galleries for every item, view official prices in Tunisian Dinars
+              (DTS), and order directly via WhatsApp.
             </p>
           </div>
         </div>
@@ -87,20 +87,20 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
             </div>
 
             <div className="flex items-center gap-2 text-xs text-[#D4B475] mb-2">
-              <span>Portail d’Entrée</span>
+              <span>Entry Portal</span>
               <span aria-hidden="true">·</span>
-              <span>Accès Sécurisé par Code</span>
+              <span>Protected Access Code</span>
             </div>
 
             <h2
               className="font-display text-3xl sm:text-4xl font-normal text-[#FAF8F5] tracking-tight"
               style={{ textWrap: 'balance' }}
             >
-              Bienvenue chez Maison Tropicanna
+              Welcome to Tropicanna
             </h2>
             <p className="mt-2.5 text-sm text-[#FAF8F5]/65 leading-relaxed">
-              Veuillez saisir votre mot de passe d’invitation pour entrer dans la
-              vitrine ou accéder au studio d’administration.
+              Please enter your confidential access password to enter the
+              showroom or access the administration studio.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
                 htmlFor="tropicanna-access-code"
                 className="block text-xs font-medium text-[#FAF8F5]/80 mb-2"
               >
-                Code d’accès personnel ou administrateur
+                Access Password
               </label>
               <div className="relative">
                 <input
@@ -122,7 +122,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
                     setCode(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="Saisissez votre mot de passe..."
+                  placeholder="Enter your password..."
                   autoFocus
                   autoComplete="off"
                   className="w-full bg-[#1B1917] border border-[#FAF8F5]/15 focus:border-[#D4B475] rounded-lg px-4 py-3.5 pr-12 text-sm text-[#FAF8F5] placeholder-[#FAF8F5]/35 focus:outline-none transition-colors"
@@ -132,9 +132,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-[#FAF8F5]/50 hover:text-[#FAF8F5] transition-colors"
                   aria-label={
-                    showPassword
-                      ? 'Masquer le mot de passe'
-                      : 'Afficher le mot de passe'
+                    showPassword ? 'Hide password' : 'Show password'
                   }
                 >
                   {showPassword ? (
@@ -159,7 +157,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
               type="submit"
               className="w-full flex items-center justify-center gap-2 bg-[#D4B475] hover:bg-[#DFC288] text-[#121110] font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
-              <span>Entrer dans l’Espace Tropicanna</span>
+              <span>Enter Tropicanna</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -168,7 +166,7 @@ export const PasswordGate: React.FC<PasswordGateProps> = ({ onUnlock }) => {
           <div className="mt-10 pt-6 border-t border-[#FAF8F5]/10 flex items-center gap-2 text-xs text-[#FAF8F5]/45">
             <ShieldCheck className="w-4 h-4 text-[#D4B475] shrink-0" />
             <span>
-              Accès strictement confidentiel · Commande directe WhatsApp (+216 99 532 209)
+              Strictly confidential access · Direct WhatsApp orders (+216 99 532 209)
             </span>
           </div>
         </div>

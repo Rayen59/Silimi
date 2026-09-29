@@ -77,7 +77,7 @@ service cloud.firestore {
       data.galleryPhotos is list && data.galleryPhotos.size() <= 8 &&
       (data.galleryPhotos.size() == 0 || (data.galleryPhotos[0] is string && data.galleryPhotos[0].size() >= 1 && data.galleryPhotos[0].size() <= 700000)) &&
       data.referenceCode is string && data.referenceCode.size() >= 1 && data.referenceCode.size() <= 40 && data.referenceCode.matches('^[a-zA-Z0-9_\\-]+$') &&
-      data.availability is string && data.availability.size() >= 1 && data.availability.size() <= 30 && data.availability in ['En Stock', 'Édition Limitée', 'Sur Commande'] &&
+      data.availability is string && data.availability.size() >= 1 && data.availability.size() <= 30 && data.availability in ['In Stock', 'Limited Edition', 'Made to Order', 'En Stock', 'Édition Limitée', 'Sur Commande'] &&
       data.authorId is string && data.authorId.size() >= 1 && data.authorId.size() <= 128 && data.authorId.matches('^[a-zA-Z0-9_\\-]+$') &&
       data.authorId == request.auth.uid &&
       data.createdAt is timestamp &&
@@ -99,13 +99,13 @@ service cloud.firestore {
     // Curated Brand Products Collection
     match /brands/{brandId} {
       allow get: if isSignedIn() && isValidId(brandId) && (
-        existing().availability in ['En Stock', 'Édition Limitée', 'Sur Commande'] ||
+        existing().availability in ['In Stock', 'Limited Edition', 'Made to Order', 'En Stock', 'Édition Limitée', 'Sur Commande'] ||
         existing().authorId == request.auth.uid ||
         isAdmin()
       );
 
       allow list: if isSignedIn() && (
-        resource.data.availability in ['En Stock', 'Édition Limitée', 'Sur Commande'] ||
+        resource.data.availability in ['In Stock', 'Limited Edition', 'Made to Order', 'En Stock', 'Édition Limitée', 'Sur Commande'] ||
         resource.data.authorId == request.auth.uid
       );
 

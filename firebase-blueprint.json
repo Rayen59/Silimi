@@ -59,7 +59,7 @@
         "availability": {
           "type": "string",
           "description": "Current stock or edition status.",
-          "enum": ["En Stock", "Édition Limitée", "Sur Commande"]
+          "enum": ["In Stock", "Limited Edition", "Made to Order", "En Stock", "Édition Limitée", "Sur Commande"]
         },
         "authorId": {
           "type": "string",

@@ -20,7 +20,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       <div className="inline-flex items-baseline gap-1.5">
         <span className="font-mono-tabular text-base font-semibold tracking-tight text-[#161514]">
           {whole}
-          {decimals ? `,${decimals}` : ''}
+          {decimals ? `.${decimals}` : ''}
         </span>
         <span className="text-[11px] font-semibold tracking-widest text-[#9A7432]">
           DTS
@@ -34,10 +34,10 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       <div className="relative flex items-center justify-between pt-3.5 border-t border-[#161514]/10">
         <div className="flex flex-col">
           <span className="text-[11px] text-[#6E6A64] tracking-wide">
-            Prix Atelier
+            Official Price
           </span>
           <span className="font-display italic text-xs text-[#9A7432]">
-            Dinars Tunisiens
+            Tunisian Dinars
           </span>
         </div>
 
@@ -47,7 +47,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           </span>
           {decimals && (
             <span className="font-mono-tabular text-xs text-[#D4B475]">
-              ,{decimals}
+              .{decimals}
             </span>
           )}
           <span className="text-[11px] font-semibold tracking-widest text-[#D4B475] ml-0.5">
@@ -63,10 +63,10 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       <div className="inline-flex items-center gap-4 bg-[#161514]/90 backdrop-blur-md border border-[#D4B475]/40 px-5 py-3 rounded-lg text-[#FAF8F5]">
         <div className="pr-4 border-r border-[#FAF8F5]/15">
           <p className="text-[11px] text-[#D4B475] tracking-wider">
-            Valeur Certifiée
+            Certified Value
           </p>
           <p className="font-display italic text-sm text-[#FAF8F5]/80">
-            Édition Tropicanna
+            Tropicanna Edition
           </p>
         </div>
         <div className="flex items-baseline gap-2">
@@ -75,7 +75,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           </span>
           {decimals && (
             <span className="font-mono-tabular text-sm text-[#D4B475]">
-              ,{decimals}
+              .{decimals}
             </span>
           )}
           <span className="text-xs font-semibold tracking-widest text-[#D4B475]">
@@ -100,9 +100,9 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       <div className="relative flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-[#D4B475] mb-1">
-            <span>Tarif Officiel Maison Tropicanna</span>
+            <span>Official Tropicanna Price</span>
             <span aria-hidden="true">·</span>
-            <span>Dinars Tunisiens</span>
+            <span>Tunisian Dinars</span>
           </div>
           <div className="flex items-baseline gap-2.5">
             <span className="font-display text-4xl sm:text-5xl font-semibold leading-none tracking-tight font-mono-tabular text-[#FAF8F5]">
@@ -110,7 +110,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             </span>
             {decimals && (
               <span className="font-mono-tabular text-lg font-medium text-[#D4B475]">
-                ,{decimals}
+                .{decimals}
               </span>
             )}
             <div className="flex flex-col ml-1">
@@ -118,7 +118,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
                 DTS
               </span>
               <span className="font-display italic text-xs text-[#FAF8F5]/65 mt-0.5">
-                TTC · Pièce Certifiée
+                Tax Incl. · Certified Piece
               </span>
             </div>
           </div>
@@ -127,10 +127,10 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         {quantity > 1 && (
           <div className="text-left sm:text-right border-t sm:border-t-0 border-[#FAF8F5]/10 pt-3 sm:pt-0">
             <span className="block text-xs text-[#FAF8F5]/60">
-              Prix unitaire : {formatDtsNumber(priceDts).whole} DTS × {quantity}
+              Unit price: {formatDtsNumber(priceDts).whole} DTS × {quantity}
             </span>
             <span className="font-display italic text-sm text-[#D4B475]">
-              Total sélection pour {quantity} pièces
+              Total for {quantity} pieces
             </span>
           </div>
         )}

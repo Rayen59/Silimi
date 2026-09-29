@@ -45,17 +45,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const totalCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   const whatsappCartMessage = [
-    'Bonjour Maison Tropicanna,',
+    'Hello Tropicanna,',
     '',
-    'Je souhaite commander ma sélection enregistrée dans mon panier :',
+    'I would like to order the items saved in my cart:',
     ...items.map(
       (item, idx) =>
-        `${idx + 1}. ${item.title} (${item.brandName} — Réf: ${item.referenceCode}) × ${item.quantity} = ${formatDtsNumber(item.priceDts * item.quantity).whole} DTS`
+        `${idx + 1}. ${item.title} (${item.brandName} — Ref: ${item.referenceCode}) × ${item.quantity} = ${formatDtsNumber(item.priceDts * item.quantity).whole} DTS`
     ),
     '',
-    `Total de la commande : ${formatDtsNumber(totalDts).whole} DTS`,
+    `Total Order Amount: ${formatDtsNumber(totalDts).whole} DTS`,
     '',
-    'Merci de me confirmer la disponibilité et les modalités de livraison.',
+    'Please confirm availability and delivery details.',
   ].join('\n');
 
   const whatsappHref = buildWhatsAppUrl(whatsappCartMessage);
@@ -71,20 +71,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       {/* Drawer Panel */}
       <aside
         className="relative z-10 w-full max-w-md bg-[#FAF8F5] text-[#161514] h-full flex flex-col shadow-2xl border-l border-[#161514]/10"
-        aria-label="Votre Panier Tropicanna"
+        aria-label="Your Tropicanna Cart"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#161514]/10">
           <div>
             <div className="flex items-center gap-2 text-xs text-[#6E6A64]">
-              <span>Sélection Sauvegardée</span>
+              <span>Saved Selection</span>
               <span aria-hidden="true">·</span>
               <span>
-                {totalCount} {totalCount > 1 ? 'pièces' : 'pièce'}
+                {totalCount} {totalCount === 1 ? 'item' : 'items'}
               </span>
             </div>
             <h2 className="font-display text-2xl font-semibold text-[#161514]">
-              Votre Panier Privé
+              Your Private Cart
             </h2>
           </div>
 
@@ -92,7 +92,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             type="button"
             onClick={onClose}
             className="p-2 rounded-lg text-[#6E6A64] hover:text-[#161514] hover:bg-[#161514]/5 transition-colors cursor-pointer"
-            aria-label="Fermer le panier"
+            aria-label="Close cart"
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,30 +106,30 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <h3 className="font-display text-2xl text-[#161514] mb-2">
-                Votre panier est vide
+                Your cart is empty
               </h3>
               <p className="text-sm text-[#6E6A64] max-w-xs leading-relaxed mb-6">
-                Ajoutez vos brins et créations coup de cœur au panier pour les
-                retrouver à tout moment lors de votre prochaine visite.
+                Add your favorite brands and creations to the cart to save them
+                and return anytime later.
               </p>
               <button
                 type="button"
                 onClick={onClose}
                 className="px-5 py-2.5 bg-[#161514] text-[#FAF8F5] text-xs font-medium rounded-lg hover:bg-[#2C2A28] transition-colors cursor-pointer whitespace-nowrap"
               >
-                Explorer la Collection
+                Explore the Collection
               </button>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between text-xs text-[#6E6A64] pb-2 border-b border-[#161514]/10">
-                <span>Sauvegarde automatique active sur cet appareil</span>
+                <span>Automatically saved on this device</span>
                 <button
                   type="button"
                   onClick={onClearCart}
                   className="text-[#8B3A3A] hover:underline cursor-pointer whitespace-nowrap"
                 >
-                  Vider le panier
+                  Clear cart
                 </button>
               </div>
 
@@ -175,7 +175,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           type="button"
                           onClick={() => onRemoveItem(item.brandId)}
                           className="p-1 text-[#6E6A64] hover:text-[#8B3A3A] transition-colors cursor-pointer"
-                          aria-label={`Retirer ${item.title}`}
+                          aria-label={`Remove ${item.title}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -187,7 +187,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             type="button"
                             onClick={() => onUpdateQuantity(item.brandId, -1)}
                             className="p-1.5 text-[#161514] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                            aria-label="Diminuer la quantité"
+                            aria-label="Decrease quantity"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
@@ -198,7 +198,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             type="button"
                             onClick={() => onUpdateQuantity(item.brandId, 1)}
                             className="p-1.5 text-[#161514] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                            aria-label="Augmenter la quantité"
+                            aria-label="Increase quantity"
                           >
                             <Plus className="w-3.5 h-3.5" />
                           </button>
@@ -224,10 +224,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="flex items-baseline justify-between">
               <div>
                 <span className="block text-xs text-[#6E6A64]">
-                  Total Estimé de la Sélection
+                  Estimated Total
                 </span>
                 <span className="font-display italic text-xs text-[#9A7432]">
-                  Règlement & Livraison personnalisés
+                  Personal payment & delivery arrangement
                 </span>
               </div>
               <div className="text-right">
@@ -247,7 +247,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               className="w-full flex items-center justify-center gap-2.5 bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] font-medium text-xs sm:text-sm px-5 py-3.5 rounded-lg transition-colors whitespace-nowrap"
             >
               <MessageCircle className="w-4 h-4 text-[#D4B475] shrink-0" />
-              <span>Commander sur WhatsApp ({WHATSAPP_DISPLAY})</span>
+              <span>Order via WhatsApp ({WHATSAPP_DISPLAY})</span>
               <ArrowUpRight className="w-4 h-4 shrink-0" />
             </a>
           </div>

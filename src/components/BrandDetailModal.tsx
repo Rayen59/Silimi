@@ -38,7 +38,6 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
   onEditBrand,
   onDeleteBrand,
 }) => {
-  // Combine mainPhoto + galleryPhotos without duplicates, keeping mainPhoto first
   const allPhotos = Array.from(
     new Set([brand.mainPhoto, ...(brand.galleryPhotos || [])].filter(Boolean))
   );
@@ -55,17 +54,17 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
   const formattedUnit = formatDtsNumber(brand.priceDts);
 
   const whatsappDirectMessage = [
-    'Bonjour Maison Tropicanna,',
+    'Hello Tropicanna,',
     '',
-    'Je souhaite acheter ce brin :',
-    `• Produit : ${brand.title}`,
-    `• Marque : ${brand.brandName}`,
-    `• Référence : ${brand.referenceCode}`,
-    `• Prix unitaire : ${formattedUnit.whole}${formattedUnit.decimals ? ',' + formattedUnit.decimals : ''} DTS`,
-    `• Quantité souhaitée : ${quantity}`,
-    `• Total : ${formattedTotal.whole}${formattedTotal.decimals ? ',' + formattedTotal.decimals : ''} DTS`,
+    'I would like to purchase this item:',
+    `• Product: ${brand.title}`,
+    `• Brand: ${brand.brandName}`,
+    `• Reference: ${brand.referenceCode}`,
+    `• Unit Price: ${formattedUnit.whole}${formattedUnit.decimals ? '.' + formattedUnit.decimals : ''} DTS`,
+    `• Quantity: ${quantity}`,
+    `• Total: ${formattedTotal.whole}${formattedTotal.decimals ? '.' + formattedTotal.decimals : ''} DTS`,
     '',
-    'Merci de me contacter pour finaliser ma commande.',
+    'Please contact me to complete my order.',
   ].join('\n');
 
   const whatsappDirectUrl = buildWhatsAppUrl(whatsappDirectMessage);
@@ -86,7 +85,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
           className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-[#161514] hover:text-[#9A7432] transition-colors cursor-pointer whitespace-nowrap"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Retour à la vitrine Tropicanna</span>
+          <span>Back to Tropicanna Showcase</span>
         </button>
 
         {role === 'admin' && (
@@ -98,7 +97,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#161514]/20 bg-white hover:bg-[#F3EFE8] text-xs font-medium text-[#161514] transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Pencil className="w-3.5 h-3.5 text-[#9A7432]" />
-                <span>Modifier ce brin</span>
+                <span>Edit Item</span>
               </button>
             )}
 
@@ -111,26 +110,26 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#8B3A3A]/30 bg-white hover:bg-[#FDF2F2] text-xs font-medium text-[#8B3A3A] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Supprimer</span>
+                    <span>Delete</span>
                   </button>
                 ) : (
                   <div className="inline-flex items-center gap-2 bg-[#FDF2F2] border border-[#8B3A3A]/40 px-3 py-1.5 rounded-lg">
                     <span className="text-xs text-[#8B3A3A] font-medium">
-                      Confirmer ?
+                      Confirm delete?
                     </span>
                     <button
                       type="button"
                       onClick={() => onDeleteBrand(brand.id)}
                       className="px-2.5 py-1 bg-[#8B3A3A] text-white text-xs rounded hover:bg-[#6E2B2B] cursor-pointer whitespace-nowrap"
                     >
-                      Oui
+                      Yes
                     </button>
                     <button
                       type="button"
                       onClick={() => setConfirmDelete(false)}
                       className="px-2 py-1 text-xs text-[#6E6A64] hover:text-[#161514] cursor-pointer whitespace-nowrap"
                     >
-                      Non
+                      No
                     </button>
                   </div>
                 )}
@@ -153,7 +152,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
             />
             {activePhoto === brand.mainPhoto && (
               <div className="absolute bottom-3 left-3 bg-[#161514]/80 backdrop-blur-xs text-[#FAF8F5] px-3 py-1 rounded text-[11px] tracking-wide">
-                Photo Principale d’Accueil
+                Main Home Cover Photo
               </div>
             )}
           </div>
@@ -163,10 +162,10 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
             <div>
               <div className="flex items-center justify-between text-xs text-[#6E6A64] mb-2">
                 <span>
-                  Galerie détaillée partagée par l’administrateur (
-                  {allPhotos.length} photos)
+                  Detailed photo gallery shared by Admin ({allPhotos.length}{' '}
+                  photos)
                 </span>
-                <span>Cliquez sur une vignette pour agrandir</span>
+                <span>Click a thumbnail to enlarge</span>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                 {allPhotos.map((photoUrl, index) => {
@@ -184,7 +183,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
                     >
                       <ResilientImage
                         src={photoUrl}
-                        alt={`${brand.title} vue ${index + 1}`}
+                        alt={`${brand.title} view ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </button>
@@ -203,7 +202,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
             <span aria-hidden="true">·</span>
             <span>{brand.category}</span>
             <span aria-hidden="true">·</span>
-            <span className="font-mono-tabular">Réf. {brand.referenceCode}</span>
+            <span className="font-mono-tabular">Ref. {brand.referenceCode}</span>
             <span aria-hidden="true">·</span>
             <span className="text-[#161514] font-medium">
               {brand.availability}
@@ -234,14 +233,14 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
           <div className="p-5 rounded-xl bg-[#F3EFE8] border border-[#161514]/10 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[#161514]">
-                Quantité désirée
+                Desired Quantity
               </span>
               <div className="inline-flex items-center bg-white border border-[#161514]/15 rounded-lg">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   className="px-3 py-2 text-[#161514] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                  aria-label="Diminuer la quantité"
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
@@ -252,7 +251,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
                   type="button"
                   onClick={() => setQuantity((q) => Math.min(99, q + 1))}
                   className="px-3 py-2 text-[#161514] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                  aria-label="Augmenter la quantité"
+                  aria-label="Increase quantity"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -268,7 +267,7 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
                 className="flex items-center justify-center gap-2 bg-[#161514] hover:bg-[#2C2A28] text-[#FAF8F5] font-medium text-xs sm:text-sm px-5 py-3.5 rounded-lg transition-colors whitespace-nowrap shadow-xs"
               >
                 <MessageCircle className="w-4 h-4 text-[#D4B475] shrink-0" />
-                <span>Acheter sur WhatsApp</span>
+                <span>Buy Now via WhatsApp</span>
                 <ArrowUpRight className="w-4 h-4 shrink-0" />
               </a>
 
@@ -285,12 +284,12 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
                 {addedFeedback ? (
                   <>
                     <Check className="w-4 h-4 shrink-0" />
-                    <span>Ajouté au Panier</span>
+                    <span>Added to Cart</span>
                   </>
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4 text-[#9A7432] shrink-0" />
-                    <span>Ajouter au Panier</span>
+                    <span>Add to Cart</span>
                   </>
                 )}
               </button>
@@ -299,18 +298,18 @@ export const BrandDetailView: React.FC<BrandDetailViewProps> = ({
             <div className="flex items-center justify-between text-[11px] text-[#6E6A64] pt-1">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#9A7432]" />
-                <span>Contact direct Admin : {WHATSAPP_DISPLAY}</span>
+                <span>Direct Admin Contact: {WHATSAPP_DISPLAY}</span>
               </span>
-              <span>Panier sauvegardé</span>
+              <span>Saved to your cart</span>
             </div>
           </div>
 
           {/* Complete Detailed Description by Admin */}
           <div className="pt-6 border-t border-[#161514]/10">
             <div className="flex items-center gap-2 text-xs text-[#6E6A64] mb-3">
-              <span>Description Détaillée & Note de l’Administrateur</span>
+              <span>Detailed Description & Admin Notes</span>
               <span aria-hidden="true">·</span>
-              <span>Fiche Complète</span>
+              <span>Full Specification</span>
             </div>
             <div className="prose prose-sm max-w-[68ch] text-[#2B2927] space-y-3.5 leading-relaxed whitespace-pre-line text-[15px]">
               {brand.detailedDescription}

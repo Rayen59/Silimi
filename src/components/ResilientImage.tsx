@@ -25,7 +25,7 @@ export const ResilientImage: React.FC<ResilientImageProps> = ({
       >
         <Sparkles className="w-6 h-6 mb-2 text-[#9A7432] opacity-80" />
         <span className="font-display text-base italic tracking-wide text-[#2A2622] line-clamp-2">
-          {fallbackLabel || alt || 'Maison Tropicanna'}
+          {fallbackLabel || alt || 'Tropicanna House'}
         </span>
       </div>
     );
